@@ -39,3 +39,11 @@ export function updateCategorById(category) {
     data: category
   })
 }
+
+export function updateSort(updateOBjects) {
+  return request({
+    url: url + 'update/sort',
+    method: 'post',
+    data: updateOBjects
+  })
+}

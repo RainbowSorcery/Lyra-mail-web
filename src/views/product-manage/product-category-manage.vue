@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { getCategoryTreeList, deleteCategoryByIds, addProductCategory, getCategoryById, updateCategorById } from '@/api/category'
+import { getCategoryTreeList, deleteCategoryByIds, addProductCategory, getCategoryById, updateCategorById, updateSort } from '@/api/category'
 export default {
   name: 'ProductCategoryManager',
   data() {
@@ -209,8 +209,6 @@ export default {
         belling = dropNode.childNodes
       }
 
-
-      console.log(belling)
       for (let i = 0; i < belling.length; i++) {
         // 拖拽的节点还有可能改变父id 所以如果拖拽的节点是遍历的节点 将父id添加上去
         if (belling[i].data.catId === draggingNode.data.catId) {
@@ -232,6 +230,20 @@ export default {
           this.updateObjects.push({ catId: belling[i].data.catId, sort: i })
         }
       }
+
+      updateSort(this.updateObjects).then((response) => {
+        this.$message({
+          message: '修改成功',
+          type: 'success'
+        })
+        // 修改完成重写刷新menu并将更新列表清空 不然越拖拽对象越多 并将cateLevel复位 不然拖拽之后无法继续拖拽
+        this.getMenus()
+        this.updateObjects = []
+        this.cateLevel = 0
+      }).catch((error) => {
+        console.log(error)
+        this.$message.error('失败')
+      })
 
       // console.log(this.updateObjects)
       // 3. 获取最新的层级关系
