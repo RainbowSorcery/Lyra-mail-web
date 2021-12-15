@@ -136,10 +136,10 @@ export const constantRoutes = [
         meta: { title: '商品分类管理', icon: 'el-icon-edit-outline', affix: true }
       },
       {
-        path: 'test',
-        component: () => import('@/views/dashboard/index'),
-        name: 'test',
-        meta: { title: 'test', icon: 'dashboard', affix: true }
+        path: 'product-brand',
+        component: () => import('@/views/product-manage/product-brand-manage'),
+        name: 'product-brand-manage',
+        meta: { title: '品牌管理', icon: 'dashboard', affix: true }
       }
     ]
   }

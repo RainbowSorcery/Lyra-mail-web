@@ -1,6 +1,13 @@
 <template>
   <div>
-    <el-tree show-checkbox node-key="data.catId" draggable :data="categoryList" :props="defaultProps" :allow-drop="allowDrop" @node-click="handleNodeClick" @node-drop="handleDrop">
+    <el-switch
+      v-model="draggable"
+      active-text="开启拖拽"
+      inactive-text="关闭拖拽"
+    />
+    <el-button v-if="draggable" type="primary" plain size="mini" @click="batchUpdateCategory">保存</el-button>
+    <el-button v-if="draggable" type="danger" plain size="mini" @click="deleteSelectedCategory">删除所选商品分类</el-button>
+    <el-tree ref="menuTree" show-checkbox node-key="data.catId" :draggable="draggable" :data="categoryList" :props="defaultProps" :allow-drop="allowDrop" @node-click="handleNodeClick" @node-drop="handleDrop">
       <span slot-scope="{ node, data }" class="custom-tree-node">
         <span>{{ node.label }}</span>
         <span>
@@ -55,6 +62,7 @@
         <el-button type="primary" @click="submit()">确 定</el-button>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
@@ -64,6 +72,7 @@ export default {
   name: 'ProductCategoryManager',
   data() {
     return {
+      draggable: true,
       updateObjects: [],
       cateLevel: 0,
       sumbitType: '',
@@ -82,7 +91,9 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'name'
-      }
+      },
+      deleteCategoryNameList: [],
+      deleteCategoryCatIdList: []
     }
   },
   created() {
@@ -170,29 +181,45 @@ export default {
       }
     },
     allowDrop(draggingNode, dropNode, type) {
-      // console.log(count)
-      this.countNode(draggingNode.data)
-      // 当前最深结点深度 - 当前节点深度 = 真实深度
-      var currentCount = this.cateLevel - draggingNode.data.catLevel
-      // 当进行插入操作时 被插入节点的当前节点
-      // + 插入节点的真实节点 <= 表示可以插入 当进行其他操作时 只需要判断被插入节点的父节点深度 + 插入节点的深度 <= 3 即可
+      this.countNode(draggingNode)
+
       if (type === 'inner') {
-        return (currentCount + dropNode.level) <= 3
+        return this.cateLevel + dropNode.level <= 3
       } else {
-        return (currentCount + dropNode.parent.level) <= 3
+        return this.cateLevel + dropNode.parent.level <= 3
       }
+      // // console.log(count)
+      // this.countNode(draggingNode.data)
+      // // 当前最深结点深度 - 当前节点深度 = 真实深度
+      // var currentCount = this.cateLevel - draggingNode.level
+      // // 当进行插入操作时 被插入节点的当前节点
+      // // + 插入节点的真实节点 <= 表示可以插入 当进行其他操作时 只需要判断被插入节点的父节点深度 + 插入节点的深度 <= 3 即可
+      // if (type === 'inner') {
+      //   return (currentCount + dropNode.level) <= 3
+      // } else {
+      //   return (currentCount + dropNode.parent.level) <= 3
+      // }
     },
     countNode(node) {
       // 首先判断是否有子节点 若有子节点则遍历
-      if (node.children != null && node.children.length > 0) {
-        for (let i = 0; i < node.children.length; i++) {
-          // 只记录最大的catLevel
-          if (this.cateLevel < node.children[i].catLevel) {
-            this.cateLevel = node.children[i].catLevel
+      if (node.childNodes != null && node.childNodes.length > 0) {
+        for (let i = 0; i < node.childNodes.length; i++) {
+          if (node.childNodes[i].level > this.cateLevel) {
+            this.cateLevel = node.childNodes[i].level
           }
-          this.countNode(node.children[i])
+          this.countNode(node.childNodes[i])
         }
       }
+
+    //   if (node.childNodes != null && node.children.length > 0) {
+    //     for (let i = 0; i < node.childNodes.length; i++) {
+    //       // 只记录最大的catLevel
+    //       if (this.cateLevel < node.childNodes[i].level) {
+    //         this.cateLevel = node.childNodes[i].level
+    //       }
+    //       this.countNode(node.childNodes[i])
+    //     }
+    //   }
     },
     handleDrop(draggingNode, dropNode, dropType, ev) {
       // 1. 获取父节点id
@@ -230,7 +257,20 @@ export default {
           this.updateObjects.push({ catId: belling[i].data.catId, sort: i })
         }
       }
-
+      // console.log(this.updateObjects)
+      // 3. 获取最新的层级关系
+    },
+    updateChildNodeLevel(node) {
+      if (node != null && node.length > 0) {
+        for (let i = 0; i < node.length; i++) {
+          if (node[i].level !== node[i].data.catLevel) {
+            this.updateObjects.push({ catId: node[i].data.catId, catLevel: node[i].level })
+          }
+          this.updateChildNodeLevel(node[i].childNodes)
+        }
+      }
+    },
+    batchUpdateCategory() {
       updateSort(this.updateObjects).then((response) => {
         this.$message({
           message: '修改成功',
@@ -244,19 +284,36 @@ export default {
         console.log(error)
         this.$message.error('失败')
       })
-
-      // console.log(this.updateObjects)
-      // 3. 获取最新的层级关系
     },
-    updateChildNodeLevel(node) {
-      if (node != null && node.length > 0) {
-        for (let i = 0; i < node.length; i++) {
-          if (node[i].level !== node[i].data.catLevel) {
-            this.updateObjects.push({ catId: node[i].data.catId, catLevel: node[i].level })
-          }
-          this.updateChildNodeLevel(node[i].childNodes)
-        }
+    deleteSelectedCategory() {
+      var selectNodes = this.$refs.menuTree.getCheckedNodes()
+
+      for (let i = 0; i < selectNodes.length; i++) {
+        this.deleteCategoryNameList.push(selectNodes[i].name)
+        this.deleteCategoryCatIdList.push(selectNodes[i].catId)
       }
+
+      this.$confirm('此操作将永久删除 ' + this.deleteCategoryNameList + ' 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteCategoryByIds(this.deleteCategoryCatIdList).then((response) => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.getMenus()
+        }).catch((error) => {
+          console.log(error)
+          this.$message.error('删除错误')
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     }
   }
 }
