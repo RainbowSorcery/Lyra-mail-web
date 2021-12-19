@@ -91,7 +91,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/documentation/index'),
         name: 'Documentation',
-        meta: { title: 'Documentation', icon: 'documentation', affix: true }
+        meta: { title: 'Documentation', icon: 'documentation', affix: false }
       }
     ]
   },
@@ -133,13 +133,13 @@ export const constantRoutes = [
         path: 'categoryManage',
         component: () => import('@/views/product-manage/product-category-manage'),
         name: 'categoryManage',
-        meta: { title: '商品分类管理', icon: 'el-icon-edit-outline', affix: true }
+        meta: { title: '商品分类管理', icon: 'el-icon-edit-outline', affix: false }
       },
       {
         path: 'product-brand',
         component: () => import('@/views/product-manage/product-brand-manage'),
         name: 'product-brand-manage',
-        meta: { title: '品牌管理', icon: 'dashboard', affix: true }
+        meta: { title: '品牌管理', icon: 'dashboard', affix: false }
       }
     ]
   }

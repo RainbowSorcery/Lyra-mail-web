@@ -72,7 +72,7 @@ export default {
   name: 'ProductCategoryManager',
   data() {
     return {
-      draggable: true,
+      draggable: false,
       updateObjects: [],
       cateLevel: 0,
       sumbitType: '',
@@ -120,6 +120,7 @@ export default {
     },
     append(data) {
       this.addCategoryDialog = true
+      this.sumbitType = 'add'
       this.category.parentCid = data.catId
       // 转换数字再 + 1
       this.category.catLevel = data.catLevel * 1 + 1
