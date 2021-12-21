@@ -31,3 +31,25 @@ export function getOSSPolicy() {
     method: 'get'
   })
 }
+
+export function getBrandById(brandId) {
+  return request({
+    url: url + 'searchBrandById?brandId=' + brandId,
+    method: 'get'
+  })
+}
+
+export function deleteBrandById(brandId) {
+  return request({
+    url: url + 'delete?brandId=' + brandId,
+    method: 'post'
+  })
+}
+
+export function deleteAllList(brandIdList) {
+  return request({
+    url: url + 'deleteAllList',
+    method: 'post',
+    data: brandIdList
+  })
+}
