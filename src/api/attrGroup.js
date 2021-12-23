@@ -15,3 +15,11 @@ export function conditionList(categoryId, current, pageSize, keyWord) {
     method: 'get'
   })
 }
+
+export function addAttrGroups(data) {
+  return request({
+    url: url + 'addAttrGroup',
+    method: 'post',
+    data
+  })
+}

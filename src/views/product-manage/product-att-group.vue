@@ -18,10 +18,10 @@
         >新增</el-button>
         <el-button
           type="danger"
-          @click="deleteBrandByList"
+          @click="deleteAttrGropByList"
         >批量删除</el-button>
       </div>
-      <div class="brandTable">
+      <div class="AttrGropTable">
         <el-table
           :data="attrGroupPage.records"
           style="width: 100%"
@@ -63,12 +63,12 @@
               <el-button
                 type="text"
                 size="small"
-                @click="regeditBrand(scope.row)"
+                @click="regeditAttrGrop(scope.row)"
               >编辑</el-button>
               <el-button
                 type="text"
                 size="small"
-                @click="deleteBrand(scope.row)"
+                @click="deleteAttrGrop(scope.row)"
               >删除</el-button>
             </template>
           </el-table-column>
@@ -115,6 +115,16 @@
             />
           </el-form-item>
           <el-form-item
+            label="排序"
+            prop="sort"
+            :label-width="formLabelWidth"
+          >
+            <el-input
+              v-model="form.sort"
+              autocomplete="off"
+            />
+          </el-form-item>
+          <el-form-item
             label="组图标"
             :label-width="formLabelWidth"
           >
@@ -152,7 +162,7 @@
 
 <script>
 import CategoryTree from '@/views/common/category-tree.vue'
-import { listPageByCategoryId, conditionList } from '@/api/attrGroup'
+import { listPageByCategoryId, conditionList, addAttrGroups } from '@/api/attrGroup'
 import { getCategoryTreeList } from '@/api/category'
 
 export default {
@@ -191,12 +201,11 @@ export default {
       },
       attrGroupDialog: false,
       form: {
-        name: '',
-        logo: '',
+        attrGroupName: '',
+        sort: 0,
         descript: '',
-        showStatus: 0,
-        firstLetter: '',
-        sort: ''
+        icon: '',
+        catelogId: 0
       },
       formLabelWidth: '100px',
       rules: {
@@ -204,8 +213,8 @@ export default {
         logo: { required: true, message: '请上传品牌图片', trigger: 'blur' },
         descript: { required: true, message: '请输入品牌介绍', trigger: 'blur' },
         sort: [
-          { required: true, message: '请输入品牌排序', trigger: 'blur' },
-          { type: 'number', message: '年龄必须为数字值' }
+          { required: true, message: '请输入品牌排序', trigger: 'blur' }
+          // { type: 'number', message: '年龄必须为数字值' }
         ],
         firstLetter: { validator: firstLetter, trigger: 'blur' }
       }
@@ -223,24 +232,32 @@ export default {
       console.log(`当前页: ${val}`)
     },
     add() {
+      this.attrGroupDialogType = 'addAttrGrop'
       this.attrGroupDialog = true
     },
-    addBrand() {
+    addAttrGrop() {
+      this.form.catelogId = this.selectedCategoryIds[this.selectedCategoryIds.length - 1]
+      addAttrGroups(this.form).then((response) => {
+        this.$message({
+          message: '添加成功.',
+          type: 'success'
+        })
+      })
     },
-    updateBrand() {
+    updateAttrGrop() {
     },
-    regeditBrand(row) {
+    regeditAttrGropd(row) {
     },
     sumbit(dailogForm) {
       this.$refs[dailogForm].validate((valid) => {
         if (valid) {
-          if (this.attrGroupDialogType === 'updateBrand') {
-            this.updateBrand()
+          if (this.attrGroupDialogType === 'updateAttrGrop') {
+            this.updateAttrGrop()
             this.form = {}
             this.attrGroupDialog = false
             this.fileList = []
-          } else if (this.attrGroupDialogType === 'addBrand') {
-            this.addBrand()
+          } else if (this.attrGroupDialogType === 'addAttrGrop') {
+            this.addAttrGrop()
             this.form = {}
             this.attrGroupDialog = false
             this.fileList = []
@@ -265,11 +282,11 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
-    deleteBrandByList() {
+    deleteAttrGropByList() {
       var deleteIdList = []
       if (this.multipleSelection.length != null && this.multipleSelection.length > 0) {
         for (let i = 0; i < this.multipleSelection.length; i++) {
-          deleteIdList.push(this.multipleSelection[i].brandId)
+          deleteIdList.push(this.multipleSelection[i].AttrGropId)
         }
       }
 
@@ -309,7 +326,7 @@ export default {
 </script>
 
 <style scoped>
-  .div, brandTable {
+  .div, AttrGropTable {
     margin: 25px;
   }
 .el-input {
