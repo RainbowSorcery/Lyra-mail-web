@@ -142,6 +142,27 @@ export const constantRoutes = [
         meta: { title: '品牌管理', icon: 'dashboard', affix: false }
       }
     ]
+  },
+  {
+    path: '/commodities',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: 'commodities',
+    meta: { title: '平台属性', icon: 'el-icon-setting' },
+    children: [
+      {
+        path: 'attGroup',
+        component: () => import('@/views/product-manage/product-att-group'),
+        name: 'attGroup',
+        meta: { title: '属性分组', icon: 'el-icon-s-operation', affix: false }
+      },
+      {
+        path: 'product-brand',
+        component: () => import('@/views/product-manage/product-brand-manage'),
+        name: 'product-brand-manage',
+        meta: { title: '品牌管理', icon: 'dashboard', affix: false }
+      }
+    ]
   }
 ]
 
