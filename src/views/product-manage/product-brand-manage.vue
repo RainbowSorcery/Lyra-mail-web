@@ -70,6 +70,7 @@
           <template slot-scope="scope">
             <el-button type="text" size="small" @click="regeditBrand(scope.row)">编辑</el-button>
             <el-button type="text" size="small" @click="deleteBrand(scope.row)">删除</el-button>
+            <el-button type="text" size="small" @click="associatCategory(scope.row)">关联分类</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -129,7 +130,41 @@
         <el-button type="primary" @click="sumbit('dailogForm')">确 定</el-button>
       </div>
     </el-dialog>
-
+    <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
+      <el-popover
+        v-model="visible"
+        placement="right"
+        width="400"
+        trigger="click"
+      >
+        <el-cascader
+          v-model="paths"
+          filterable
+          clearable
+          :options="categorys"
+          :props="setting"
+        />
+        <el-button slot="reference" @click="slectionCategoryList">新建关联</el-button>
+        <div>
+          <el-button @click="saveAssocia">确定</el-button>
+          <el-button @click="visible = false">取消</el-button>
+        </div>
+      </el-popover>
+      <el-table :data="associatData">
+        <el-table-column property="id" label="#" />
+        <el-table-column property="brandName" label="品牌名称" />
+        <el-table-column property="catelogName" label="分类名称" />
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -137,6 +172,8 @@
 
 import { getBrandPage, updateBrand, addBrand, getOSSPolicy, getBrandById, deleteBrandById, deleteAllList } from '@/api/brand'
 import { v4 as uuidv4 } from 'uuid'
+import { getCategoryTreeList } from '@/api/category'
+import { categoryBrandRelation, categoryBrandList, categoryBrandDelete } from '@/api/categoryBrand'
 
 export default {
   name: 'ProductBrand',
@@ -152,6 +189,20 @@ export default {
       }
     }
     return {
+      associatObject: {
+        catelogId: null,
+        brandId: null
+      },
+      visible: false,
+      paths: null,
+      categorys: [],
+      setting: {
+        value: 'catId',
+        label: 'name',
+        children: 'children'
+      },
+      associatData: [],
+      dialogTableVisible: false,
       multipleSelection: [],
       uploadUrl: '',
       fileList: [],
@@ -357,6 +408,43 @@ export default {
           type: 'info',
           message: '已取消删除'
         })
+      })
+    },
+    associatCategory(row) {
+      this.dialogTableVisible = true
+      this.associatObject.brandId = row.brandId
+      this.findAssciatList(row.brandId)
+    },
+    slectionCategoryList() {
+      getCategoryTreeList().then((response) => {
+        this.categorys = response.data
+      })
+    },
+    findAssciatList(brandId) {
+      categoryBrandList(brandId).then((response) => {
+        this.associatData = response.data
+      })
+    },
+    saveAssocia() {
+      this.associatObject.catelogId = this.paths[this.paths.length - 1]
+
+      categoryBrandRelation(this.associatObject).then((response) => {
+        this.$message({
+          message: '关联成功',
+          type: 'success'
+        })
+        this.visible = false
+        this.findAssciatList(this.associatObject.brandId)
+      })
+    },
+    handleDelete(index, row) {
+      console.log(row)
+      categoryBrandDelete(row.id).then((response) => {
+        this.$message({
+          message: '删除成功',
+          type: 'success'
+        })
+        this.findAssciatList(row.brandId)
       })
     }
   }

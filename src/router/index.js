@@ -157,10 +157,10 @@ export const constantRoutes = [
         meta: { title: '属性分组', icon: 'el-icon-s-operation', affix: false }
       },
       {
-        path: 'product-brand',
+        path: 'product-basettr',
         component: () => import('@/views/product-manage/product-brand-manage'),
         name: 'product-brand-manage',
-        meta: { title: '品牌管理', icon: 'dashboard', affix: false }
+        meta: { title: '规格参数', icon: 'dashboard', affix: false }
       }
     ]
   }

@@ -23,3 +23,18 @@ export function addAttrGroups(data) {
     data
   })
 }
+
+export function findAttrGroupById(attrGroupId) {
+  return request({
+    url: url + 'findAttrGroupById?attrGroupId=' + attrGroupId,
+    method: 'get'
+  })
+}
+
+export function updateAttrGroupById(data) {
+  return request({
+    url: url + 'updateAttrGroupById',
+    method: 'post',
+    data
+  })
+}

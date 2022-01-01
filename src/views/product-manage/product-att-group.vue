@@ -63,7 +63,7 @@
               <el-button
                 type="text"
                 size="small"
-                @click="regeditAttrGrop(scope.row)"
+                @click="regeditAttrGropd(scope.row)"
               >编辑</el-button>
               <el-button
                 type="text"
@@ -162,7 +162,7 @@
 
 <script>
 import CategoryTree from '@/views/common/category-tree.vue'
-import { listPageByCategoryId, conditionList, addAttrGroups } from '@/api/attrGroup'
+import { listPageByCategoryId, conditionList, addAttrGroups, findAttrGroupById, updateAttrGroupById } from '@/api/attrGroup'
 import { getCategoryTreeList } from '@/api/category'
 
 export default {
@@ -245,8 +245,21 @@ export default {
       })
     },
     updateAttrGrop() {
+      this.form.catelogId = this.selectedCategoryIds[this.selectedCategoryIds.length - 1]
+      updateAttrGroupById(this.form).then((response) => {
+        this.$message({
+          message: '修改成功.',
+          type: 'success'
+        })
+      })
     },
     regeditAttrGropd(row) {
+      this.attrGroupDialogType = 'updateAttrGrop'
+      this.attrGroupDialog = true
+      findAttrGroupById(row.attrGroupId).then((response) => {
+        this.form = response.data
+        this.selectedCategoryIds = response.data.attrGroupPath
+      })
     },
     sumbit(dailogForm) {
       this.$refs[dailogForm].validate((valid) => {
@@ -278,6 +291,7 @@ export default {
     },
     closeDailog() {
       this.form = {}
+      this.selectedCategoryIds = []
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
