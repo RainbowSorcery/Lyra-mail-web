@@ -16,3 +16,18 @@ export function findBaseAttrList(categoryId, current, pageSize, keyword) {
     method: 'get'
   })
 }
+
+export function attrInfo(attrId) {
+  return request({
+    url: url + 'info/' + attrId,
+    method: 'get'
+  })
+}
+
+export function attrUpdate(data) {
+  return request({
+    url: url + 'update',
+    method: 'post',
+    data
+  })
+}

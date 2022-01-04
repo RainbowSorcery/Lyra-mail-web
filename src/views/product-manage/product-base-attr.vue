@@ -51,7 +51,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="valueType"
           label="值类型"
           show-overflow-tooltip
         >
@@ -91,7 +91,7 @@
           show-overflow-tooltip
         />
         <el-table-column
-          prop="address"
+          prop="attrGroupName"
           label="所属分组"
           show-overflow-tooltip
         />
@@ -113,7 +113,7 @@
         >
           <template slot-scope="scope">
             <el-button type="text" size="small" @click="handleClick(scope.row)">查看</el-button>
-            <el-button type="text" size="small">编辑</el-button>
+            <el-button type="text" size="small" @click="regedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -221,7 +221,7 @@
 import CategoryTree from '@/views/common/category-tree.vue'
 import { getCategoryTreeList } from '@/api/category'
 import { findCategoryIdByList } from '@/api/attrGroup'
-import { saveAttr, findBaseAttrList } from '@/api/attr'
+import { saveAttr, findBaseAttrList, attrInfo, attrUpdate } from '@/api/attr'
 
 export default {
   name: 'ProductBaseAttr',
@@ -317,6 +317,10 @@ export default {
         this.selectArrayToString()
         this.addAttr()
         this.dialogFormVisible = false
+      } else if (this.dialogType === 'update') {
+        this.selectArrayToString()
+        this.updateAttr()
+        this.dialogFormVisible = false
       }
     },
     dailogClose() {
@@ -336,6 +340,27 @@ export default {
       findBaseAttrList(this.catId, val, 10, null).then((response) => {
         this.attrPage = response.data
         this.attrList = response.data.records
+      })
+    },
+    regedit(row) {
+      this.findCategoryList()
+      this.dialogType = 'update'
+      findCategoryIdByList(row.catelogId).then((response) => {
+        this.groupAttrList = response.data
+      })
+      attrInfo(row.attrId).then((response) => {
+        this.form = response.data
+        var selected = response.data.valueSelect.split(';')
+        this.valueSelectArray = selected
+        this.selectedCategoryNode = response.data.categoryIdPathList
+        this.selectedgroupAttrNode = response.data.attrGroupId
+      })
+
+      this.dialogFormVisible = true
+    },
+    updateAttr() {
+      attrUpdate(this.form).then((reponse) => {
+        this.$message('修改成功')
       })
     }
   }
