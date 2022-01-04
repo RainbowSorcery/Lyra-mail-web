@@ -4,7 +4,6 @@
       <category-tree @tree-node-click="treeNodeClick" />
     </el-col>
     <el-col :span="18">
-
       <div id="crud">
         <el-input
           v-model="searchCondtion"

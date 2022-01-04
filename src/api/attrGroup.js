@@ -38,3 +38,10 @@ export function updateAttrGroupById(data) {
     data
   })
 }
+
+export function findCategoryIdByList(categoryId) {
+  return request({
+    url: url + 'findCategoryIdByList/' + categoryId,
+    method: 'get'
+  })
+}

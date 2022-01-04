@@ -158,7 +158,7 @@ export const constantRoutes = [
       },
       {
         path: 'product-basettr',
-        component: () => import('@/views/product-manage/product-brand-manage'),
+        component: () => import('@/views/product-manage/product-base-attr'),
         name: 'product-brand-manage',
         meta: { title: '规格参数', icon: 'dashboard', affix: false }
       }
