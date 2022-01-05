@@ -31,3 +31,10 @@ export function attrUpdate(data) {
     data
   })
 }
+
+export function findSaleAttrList(categoryId, current, pageSize, keyword) {
+  return request({
+    url: url + '/sale/list/' + categoryId + '?pageSize=' + pageSize + '&current=' + current + '&keyword=' + keyword,
+    method: 'get'
+  })
+}

@@ -221,10 +221,10 @@
 import CategoryTree from '@/views/common/category-tree.vue'
 import { getCategoryTreeList } from '@/api/category'
 import { findCategoryIdByList } from '@/api/attrGroup'
-import { saveAttr, findSaleAttrList, attrInfo, attrUpdate } from '@/api/attr'
+import { saveAttr, findBaseAttrList, attrInfo, attrUpdate } from '@/api/attr'
 
 export default {
-  name: 'ProductBaseAttr',
+  name: 'ProductSaleManager',
   components: {
     CategoryTree
   },
@@ -272,7 +272,7 @@ export default {
   },
   methods: {
     attgroupSearch() {
-      findSaleAttrList(this.catId, 0, 10, this.searchCondtion).then((response) => {
+      findBaseAttrList(this.catId, 0, 10, this.searchCondtion).then((response) => {
         this.attrList = response.data.records
       })
     },
@@ -329,7 +329,7 @@ export default {
     },
     nodeClick(object, node, vueObject) {
       if (node.ldev !== null && node.level === 3) {
-        findSaleAttrList(node.data.catId, 0, 10, null).then((response) => {
+        findBaseAttrList(node.data.catId, 0, 10, null).then((response) => {
           this.attrPage = response.data
           this.catId = node.data.catId
           this.attrList = response.data.records
@@ -337,7 +337,7 @@ export default {
       }
     },
     pageChage(val) {
-      findSaleAttrList(this.catId, val, 10, null).then((response) => {
+      findBaseAttrList(this.catId, val, 10, null).then((response) => {
         this.attrPage = response.data
         this.attrList = response.data.records
       })
