@@ -69,6 +69,11 @@
                 size="small"
                 @click="deleteAttrGrop(scope.row)"
               >删除</el-button>
+              <el-button
+                type="text"
+                size="small"
+                @click="relationHandle(scope.row)"
+              >分组关联</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -81,7 +86,85 @@
           @current-change="handleCurrentChange"
         />
       </div>
-
+      <el-dialog :close-on-click-modal="false" :visible.sync="visible" @closed="dialogClose">
+        <el-dialog width="40%" title="选择属性" :visible.sync="innerVisible" append-to-body>
+          <div>
+            <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+              <el-form-item>
+                <el-input v-model="dataForm.key" placeholder="参数名" clearable />
+              </el-form-item>
+              <el-form-item>
+                <el-button @click="getDataList()">查询</el-button>
+              </el-form-item>
+            </el-form>
+            <el-table
+              v-loading="dataListLoading"
+              :data="dataList"
+              border
+              style="width: 100%;"
+              @selection-change="innerSelectionChangeHandle"
+            >
+              <el-table-column type="selection" header-align="center" align="center" />
+              <el-table-column prop="attrId" header-align="center" align="center" label="属性id" />
+              <el-table-column prop="attrName" header-align="center" align="center" label="属性名" />
+              <el-table-column prop="icon" header-align="center" align="center" label="属性图标" />
+              <el-table-column prop="valueSelect" header-align="center" align="center" label="可选值列表" />
+            </el-table>
+            <el-pagination
+              layout="total, sizes, prev, pager, next, jumper"
+              :current-page="pageIndex"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size="pageSize"
+              :total="totalPage"
+              @size-change="sizeChangeHandle"
+              @current-change="currentChangeHandle"
+            />
+          </div>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="innerVisible = false">取 消</el-button>
+            <el-button type="primary" @click="submitAddRealtion">确认新增</el-button>
+          </div>
+        </el-dialog>
+        <el-row>
+          <el-col :span="24">
+            <el-button type="primary" @click="addRelation">新建关联</el-button>
+            <el-button
+              type="danger"
+              :disabled="dataListSelections.length <= 0"
+              @click="batchDeleteRelation"
+            >批量删除</el-button>
+            <!--  -->
+            <el-table
+              :data="relationAttrs"
+              style="width: 100%"
+              border
+              @selection-change="selectionChangeHandle"
+            >
+              <el-table-column type="selection" header-align="center" align="center" width="50" />
+              <el-table-column prop="attrId" label="#" />
+              <el-table-column prop="attrName" label="属性名" />
+              <el-table-column prop="valueSelect" label="可选值">
+                <template slot-scope="scope">
+                  <el-tooltip placement="top">
+                    <div slot="content">
+                      <span v-for="(i,index) in scope.row.valueSelect.split(';')" :key="index">
+                        {{ i }}
+                        <br>
+                      </span>
+                    </div>
+                    <el-tag>{{ scope.row.valueSelect.split(";")[0]+" ..." }}</el-tag>
+                  </el-tooltip>
+                </template>
+              </el-table-column>
+              <el-table-column fixed="right" header-align="center" align="center" label="操作">
+                <template slot-scope="scope">
+                  <el-button type="text" size="small" @click="relationRemove(scope.row.attrId)">移除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-col>
+        </el-row>
+      </el-dialog>
       <el-dialog
         title="新增"
         :visible.sync="attrGroupDialog"
@@ -161,7 +244,7 @@
 
 <script>
 import CategoryTree from '@/views/common/category-tree.vue'
-import { listPageByCategoryId, conditionList, addAttrGroups, findAttrGroupById, updateAttrGroupById } from '@/api/attrGroup'
+import { listPageByCategoryId, conditionList, addAttrGroups, findAttrGroupById, updateAttrGroupById, removerById, attrRelation, removerAttrRelation, noAttrRelation, addAttrRelation } from '@/api/attrGroup'
 import { getCategoryTreeList } from '@/api/category'
 
 export default {
@@ -181,6 +264,20 @@ export default {
       }
     }
     return {
+      attrGroupId: 0,
+      visible: false,
+      innerVisible: false,
+      relationAttrs: [],
+      dataListSelections: [],
+      dataForm: {
+        key: ''
+      },
+      dataList: [],
+      pageIndex: 1,
+      pageSize: 10,
+      totalPage: 0,
+      dataListLoading: false,
+      innerdataListSelections: [],
       cascaderPrps: {
         value: 'catId',
         children: 'children',
@@ -333,6 +430,97 @@ export default {
       getCategoryTreeList().then((response) => {
         this.categoryTreeList = response.data
       })
+    },
+    deleteAttrGrop(row) {
+      this.$confirm('此操作将永久删除该分组, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        removerById(row.attrGroupId).then((response) => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    dialogClose() {
+    },
+    submitAddRealtion() {
+      this.innerVisible = false
+      // 准备数据
+      console.log('准备新增的数据', this.innerdataListSelections)
+      if (this.innerdataListSelections.length > 0) {
+        const postData = []
+        this.innerdataListSelections.forEach(item => {
+          postData.push({ attrId: item.attrId, attrGroupId: this.attrGroupId })
+        })
+        console.log(postData)
+        addAttrRelation(postData).then((response) => {
+          console.log(response)
+        })
+      }
+    },
+    addRelation() {
+      this.innerVisible = true
+      noAttrRelation(this.attrGroupId, 10, 0).then((response) => {
+        this.dataList = response.data.records
+      })
+    },
+    innerSelectionChangeHandle(val) {
+      this.innerdataListSelections = val
+    },
+    sizeChangeHandle() {
+    },
+    currentChangeHandle() {
+    },
+    batchDeleteRelation() {
+      const data = []
+      for (let i = 0; i < this.dataListSelections.length; i++) {
+        data.push({ attrId: this.dataListSelections[i].attrId, attrGroupId: this.attrGroupId })
+      }
+
+      removerAttrRelation(data).then((response) => {
+        this.$message({
+          message: '删除成功.',
+          type: 'success'
+        })
+      })
+      attrRelation(this.attrGroupId).then((response) => {
+        this.relationAttrs = response.data
+      })
+      this.attrGroupId = 0
+    },
+    selectionChangeHandle(val) {
+      this.dataListSelections = val
+    },
+    relationHandle(row) {
+      this.attrGroupId = row.attrGroupId
+      this.visible = true
+      console.log(row)
+      attrRelation(row.attrGroupId).then((response) => {
+        this.relationAttrs = response.data
+      })
+    },
+    relationRemove(attrId) {
+      const data = []
+      data.push({ attrId, attrGroupId: this.attrGroupId })
+      removerAttrRelation(data).then((response) => {
+        this.$message({
+          message: '删除成功.',
+          type: 'success'
+        })
+      })
+      attrRelation(this.attrGroupId).then((response) => {
+        this.relationAttrs = response.data
+      })
+      this.attrGroupId = 0
     }
   }
 }

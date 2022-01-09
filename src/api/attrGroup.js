@@ -45,3 +45,40 @@ export function findCategoryIdByList(categoryId) {
     method: 'get'
   })
 }
+
+export function removerById(attrGroupId) {
+  return request({
+    url: url + 'remove/' + attrGroupId,
+    method: 'post'
+  })
+}
+
+export function attrRelation(attrGroupId) {
+  return request({
+    url: url + '/' + attrGroupId + '/attr/relation',
+    method: 'get'
+  })
+}
+
+export function removerAttrRelation(data) {
+  return request({
+    url: url + 'attr/relation/delete',
+    method: 'post',
+    data
+  })
+}
+
+export function noAttrRelation(attrGroupId, pageSize, current) {
+  return request({
+    url: url + attrGroupId + '/noAttr/relation?pageSize=' + pageSize + '&current=' + current,
+    method: 'get'
+  })
+}
+
+export function addAttrRelation(data) {
+  return request({
+    url: url + '/attr/relation',
+    method: 'post',
+    data
+  })
+}
