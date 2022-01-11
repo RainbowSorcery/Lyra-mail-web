@@ -23,3 +23,10 @@ export function categoryBrandDelete(id) {
     method: 'post'
   })
 }
+
+export function brandList(categoryId) {
+  return request({
+    url: url + 'brands/list?categoryId=' + categoryId,
+    method: 'get'
+  })
+}
