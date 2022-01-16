@@ -24,6 +24,7 @@
 
 <script>
 import { getOSSPolicy } from '@/api/brand'
+import { v4 as uuidv4 } from 'uuid'
 
 export default {
   name: 'MultiUpload',
@@ -37,7 +38,8 @@ export default {
         signature: '',
         key: '',
         success_action_status: 200
-      }
+      },
+      uploadSuccesList: []
     }
   },
   methods: {
@@ -65,9 +67,8 @@ export default {
         type: 'success'
       })
 
-      console.log(this.form)
-
-      this.form.logo = this.uploadUrl + this.policyData.key
+      this.uploadSuccesList.push(this.uploadUrl + this.policyData.key)
+      this.$emit('input', this.uploadSuccesList)
       this.policyData = {}
     }
   }

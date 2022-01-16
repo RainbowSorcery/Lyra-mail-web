@@ -100,7 +100,7 @@
 
 <script>
 import AddOrUpdate from './memberlevel-add-or-update'
-import { memberLevelList, deleteMemberList } from '@/api/member/member-level'
+import { memberLevelPageList, deleteMemberList } from '@/api/member/member-level'
 
 export default {
   components: {
@@ -130,7 +130,7 @@ export default {
     // 获取数据列表
     getDataList() {
       this.dataListLoading = true
-      memberLevelList(this.pageIndex, this.pageSize).then((response) => {
+      memberLevelPageList(this.pageIndex, this.pageSize).then((response) => {
         this.dataList = response.data.records
         this.totalPage = response.data.total
         this.dataListLoading = false

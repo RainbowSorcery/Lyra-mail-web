@@ -2,9 +2,9 @@ import request from '@/utils/request'
 
 const url = 'memeber-service/ums-member-level/'
 
-export function memberLevelList(current, pageSize) {
+export function memberLevelPageList(current, pageSize) {
   return request({
-    url: url + 'list?current=' + current + '&pageSize=' + pageSize,
+    url: url + 'pageList?current=' + current + '&pageSize=' + pageSize,
     method: 'get'
   })
 }
@@ -37,5 +37,12 @@ export function deleteMemberList(ids) {
     url: url + 'delete',
     method: 'post',
     data: ids
+  })
+}
+
+export function getMemberLevelList() {
+  return request({
+    url: url + 'list',
+    method: 'get'
   })
 }

@@ -140,6 +140,18 @@ export const constantRoutes = [
         component: () => import('@/views/product-manage/product-brand-manage'),
         name: 'product-brand-manage',
         meta: { title: '品牌管理', icon: 'dashboard', affix: false }
+      },
+      {
+        path: 'product-manage',
+        component: () => import('@/views/product-manage/mange'),
+        name: 'product-brand-manage',
+        meta: { title: '商品管理', icon: 'dashboard', affix: false }
+      },
+      {
+        path: 'product-spu',
+        component: () => import('@/views/product-manage/product-spu'),
+        name: 'product-spu',
+        meta: { title: 'spu管理', icon: 'dashboard', affix: false }
       }
     ]
   },

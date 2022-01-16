@@ -352,6 +352,10 @@ import CategoryCascader from '@/views/common/category-cascader'
 import BrandSelect from '@/views/common/brand-select'
 import MultiUpload from '@/views/common/multiUpload'
 import PubSub from 'pubsub-js'
+import { attrGroupWithAttr } from '@/api/attrGroup'
+import { getMemberLevelList } from '@/api/member/member-level'
+import { findSaleAttrList } from '@/api/attr'
+import { saveSpu } from '@/api/spu'
 
 export default {
   //  import引入的组件需要注入到对象中才能使用
@@ -396,12 +400,12 @@ export default {
         brandId: [
           { required: true, message: '请选择一个品牌', trigger: 'blur' }
         ],
-        decript: [
-          { required: true, message: '请上传商品详情图集', trigger: 'blur' }
-        ],
-        images: [
-          { required: true, message: '请上传商品图片集', trigger: 'blur' }
-        ],
+        // decript: [
+        //   { required: true, message: '请上传商品详情图集', trigger: 'blur' }
+        // ],
+        // images: [
+        //   { required: true, message: '请上传商品图片集', trigger: 'blur' }
+        // ],
         weight: [
           {
             type: 'number',
@@ -488,6 +492,9 @@ export default {
       this.spu.skus[scope.$index].memberPrice[mpidx].price = e
     },
     getMemberLevels() {
+      getMemberLevelList().then((response) => {
+        this.dataResp.memberLevels = response.data
+      })
       //   this.$http({
       //     url: this.$http.adornUrl("/member/memberlevel/list"),
       //     method: "get",
@@ -549,8 +556,7 @@ export default {
       this.dataResp.baseAttrs.forEach(item => {
         item.forEach(attr => {
           // todo 有问题
-          const { attrId, showDesc } = attr
-          let { attrValues } = attr
+          var { attrId, attrValues, showDesc } = attr
           //  跳过没有录入值的属性
           if (attrValues !== '') {
             if (attrValues instanceof Array) {
@@ -605,6 +611,7 @@ export default {
 
         //  会员价，也必须在循环里面生成，否则会导致数据绑定问题
         const memberPrices = []
+        console.log(this.dataResp.memberLevels)
         if (this.dataResp.memberLevels.length > 0) {
           for (let i = 0; i < this.dataResp.memberLevels.length; i++) {
             if (this.dataResp.memberLevels[i].priviledgeMemberPrice === 1) {
@@ -657,6 +664,19 @@ export default {
     getShowSaleAttr() {
       //  获取当前分类可以使用的销售属性
       if (!this.dataResp.steped[1]) {
+        findSaleAttrList(this.spu.catalogId, 0, 5000).then((response) => {
+          this.dataResp.saleAttrs = response.data.records
+          response.data.records.forEach(item => {
+            this.dataResp.tempSaleAttrs.push({
+              attrId: item.attrId,
+              attrValues: [],
+              attrName: item.attrName
+            })
+            this.inputVisible.push({ view: false })
+            this.inputValue.push({ val: '' })
+          })
+          this.dataResp.steped[1] = true
+        })
         //   this.$http({
         //     url: this.$http.adornUrl(
         //       `/product/attr/sale/list/${this.spu.catalogId}`
@@ -683,6 +703,22 @@ export default {
     },
     showBaseAttrs() {
       if (!this.dataResp.steped[0]) {
+        attrGroupWithAttr(this.spu.catalogId).then((response) => {
+          //  先对表单的baseAttrs进行初始化
+          response.data.forEach(item => {
+            const attrArray = []
+            item.attrs.forEach(attr => {
+              attrArray.push({
+                attrId: attr.attrId,
+                attrValues: '',
+                showDesc: attr.showDesc
+              })
+            })
+            this.dataResp.baseAttrs.push(attrArray)
+          })
+          this.dataResp.steped[0] = 0
+          this.dataResp.attrGroups = response.data
+        })
         //   this.$http({
         //     url: this.$http.adornUrl(
         //       `/product/attrgroup/${this.spu.catalogId}/withattr`
@@ -716,6 +752,12 @@ export default {
         type: 'warning'
       })
         .then(() => {
+          saveSpu(this.spu).then((response) => {
+            this.$message({
+              type: 'success',
+              message: '新增商品成功!'
+            })
+          })
           //   this.$http({
           //     url: this.$http.adornUrl("/product/spuinfo/save"),
           //     method: "post",

@@ -82,3 +82,9 @@ export function addAttrRelation(data) {
     data
   })
 }
+
+export function attrGroupWithAttr(categoryId) {
+  return request({
+    url: url + categoryId + '/withattr'
+  })
+}
