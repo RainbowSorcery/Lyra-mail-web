@@ -193,6 +193,27 @@ export const constantRoutes = [
         meta: { title: '会员等级', icon: 'dashboard', affix: false }
       }
     ]
+  },
+  {
+    path: '/ware',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: 'ware',
+    meta: { title: '库存系统', icon: 'el-icon-setting' },
+    children: [
+      {
+        path: 'wareInfo',
+        component: () => import('@/views/ware/wareInfo'),
+        name: 'attGroup',
+        meta: { title: '属性分组', icon: 'el-icon-s-operation', affix: false }
+      },
+      {
+        path: 'product-basettr',
+        component: () => import('@/views/product-manage/product-base-attr'),
+        name: 'product-brand-manage',
+        meta: { title: '规格参数', icon: 'dashboard', affix: false }
+      }
+    ]
   }
 ]
 
