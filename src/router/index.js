@@ -208,10 +208,22 @@ export const constantRoutes = [
         meta: { title: '属性分组', icon: 'el-icon-s-operation', affix: false }
       },
       {
-        path: 'product-basettr',
-        component: () => import('@/views/product-manage/product-base-attr'),
-        name: 'product-brand-manage',
-        meta: { title: '规格参数', icon: 'dashboard', affix: false }
+        path: 'wareSku',
+        component: () => import('@/views/ware/wareSku'),
+        name: 'attGroup',
+        meta: { title: '商品库存', icon: 'el-icon-s-operation', affix: false }
+      },
+      {
+        path: 'warePuurchaseItem',
+        component: () => import('@/views/ware/ware-purchaseitem'),
+        name: 'warePuurchase',
+        meta: { title: '采购需求', icon: 'el-icon-s-operation', affix: false }
+      },
+      {
+        path: 'warePuurchase',
+        component: () => import('@/views/ware/ware-purchase'),
+        name: 'warePuurchase',
+        meta: { title: '采购单', icon: 'el-icon-s-operation', affix: false }
       }
     ]
   }

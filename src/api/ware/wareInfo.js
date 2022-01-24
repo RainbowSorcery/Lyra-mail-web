@@ -4,7 +4,7 @@ const url = '/ware-service/wms-ware-info/'
 
 export function wareInfoListPage(current, pageSize, key) {
   return request({
-    url: url + 'list?current' + current + '&pageSize=' + pageSize + '&key=' + key,
+    url: url + 'list?current=' + current + '&pageSize=' + pageSize + '&key=' + key,
     method: 'get'
   })
 }
