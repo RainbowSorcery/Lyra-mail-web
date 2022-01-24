@@ -226,6 +226,20 @@ export const constantRoutes = [
         meta: { title: '采购单', icon: 'el-icon-s-operation', affix: false }
       }
     ]
+  },
+  {
+    path: '/product',
+    component: Layout,
+    redirect: '/productAttrUpdate',
+    hidden: true,
+    children: [
+      {
+        path: 'productAttrUpdate',
+        component: () => import('@/views/product-manage/attrupdate'),
+        name: 'attrUpdate',
+        meta: { title: '规格修改', icon: 'dashboard' }
+      }
+    ]
   }
 ]
 

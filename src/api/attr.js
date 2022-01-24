@@ -38,3 +38,18 @@ export function findSaleAttrList(categoryId, current, pageSize, keyword) {
     method: 'get'
   })
 }
+
+export function listAttrForSpu(spuId) {
+  return request({
+    url: url + '/base/listForSpu/' + spuId,
+    method: 'get'
+  })
+}
+
+export function updateAttrBySpu(spuId, data) {
+  return request({
+    url: url + '/base/update/' + spuId,
+    method: 'post',
+    data
+  })
+}
